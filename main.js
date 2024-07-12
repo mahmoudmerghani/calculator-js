@@ -14,15 +14,13 @@ const equalBtn = document.querySelector("#equal");
 const dotBtn = document.querySelector("#dot");
 const answerBtn = document.querySelector("#answer");
 const deleteBtn = document.querySelector("#delete");
+const clearBtn = document.querySelector("#clear");
 
 numbers.forEach(number => {
     number.addEventListener("click", e => {
         if (canUseNumbers) {
             appendInput(number.textContent);
-            canUseOperator = true;
-            canUseAns = false;
-            canOverwrite = false;
-            canAnsOverwrite = false;
+            setNumberFlags();
         }
     });
 });
@@ -36,12 +34,7 @@ operators.forEach(operator => {
                 canOverwrite = false;
             }
             appendInput(` ${operator.textContent} `);
-            canUseOperator = false;
-            if (!canUseDot) { // only allow using dot if it w
-                canUseDot = true;
-            }
-            canUseAns = true;
-            canUseNumbers = true;
+            setOperatorFlags();
         }
     });
 });
@@ -49,44 +42,67 @@ operators.forEach(operator => {
 dotBtn.addEventListener("click", e => {
     if (canUseDot) {
         appendInput(dotBtn.textContent);
-        canUseDot = false;
-        canUseAns = false;
-        canAnsOverwrite = false;
-        canOverwrite = false;
-        canUseNumbers = true;
-        canUseOperator = false; 
+        setDotFlags(); 
     }
 });
 
 equalBtn.addEventListener("click", e => {
     if (canUseOperator) {
         resultScreen.textContent = calculate(currentScreen.textContent);
-        canAnsOverwrite = true;
-        canOverwrite = true;
-        canUseNumbers = true;
-        canUseDot = true;
-        canUseOperator = true;
-        canUseAns = true;
+        setEqualFlags();
     }
 });
 
 answerBtn.addEventListener("click", e => {
     if (canUseAns) {
         appendInput(answerBtn.textContent);
-        canUseAns = false;
-        canUseNumbers = false;
-        canUseOperator = true;
-        canUseDot = false;
+        setAnswerFlags();
     }
 });
 
 deleteBtn.addEventListener("click", e => {
-    
+    const lastChar = currentScreen.textContent[currentScreen.textContent.length - 1];
+    if (lastChar === " " || lastChar === "s") { // operator or ans
+        currentScreen.textContent = currentScreen.textContent.slice(0, -3);
+    }
+    else {
+        currentScreen.textContent = currentScreen.textContent.slice(0, -1);
+    }
+    if (currentScreen.textContent.length === 0) {
+        currentScreen.textContent = "0";
+        setDefaultFlags();
+        return;
+    }
+    const lastCharAfterDelete = currentScreen.textContent[currentScreen.textContent.length - 1];
+    if (lastCharAfterDelete === " ") { // operator
+        setOperatorFlags();
+    }
+    else if (lastCharAfterDelete === "s") { // ans
+        setAnswerFlags();
+    }
+    else if (lastCharAfterDelete === ".") {
+        setDotFlags();
+    }
+    else { // number
+        setNumberFlags();
+        canUseDot = true;
+        for (let i = currentScreen.textContent.length - 1; (currentScreen.textContent[i] !== " " && i >= 0); i--) {
+            if (currentScreen.textContent[i] === ".") {
+                canUseDot = false;
+            }
+        }
+    }
+});
+
+clearBtn.addEventListener("click", e => {
+    currentScreen.textContent = "0";
+    resultScreen.textContent = "";
+    setDefaultFlags();
 });
 
 function appendInput(input) {
     if (currentScreen.textContent.length < 30) {
-        if (currentScreen.textContent === "0" || canOverwrite) {
+        if ((currentScreen.textContent === "0"  && input !== ".") || canOverwrite) {
             currentScreen.textContent = input;
         }
         else {
@@ -94,7 +110,7 @@ function appendInput(input) {
         }
     }
     else {
-        resultScreen.textContent = "Reached maximum number";
+        resultScreen.textContent = "Reached maximum number of inputs";
     }
 }
 
@@ -127,4 +143,52 @@ function calculate(exp) {
         }
     }
     return tokenizedExp[0];
+}
+
+function setNumberFlags() {
+    canUseOperator = true;
+    canUseAns = false;
+    canOverwrite = false;
+    canAnsOverwrite = false;
+}
+
+function setOperatorFlags() {
+    canUseOperator = false;
+    canUseDot = true;
+    canUseAns = true;
+    canUseNumbers = true;
+}
+
+function setDotFlags() {
+    canUseDot = false;
+    canUseAns = false;
+    canAnsOverwrite = false;
+    canOverwrite = false;
+    canUseNumbers = true;
+    canUseOperator = false;
+}
+
+function setEqualFlags() {
+    canAnsOverwrite = true;
+    canOverwrite = true;
+    canUseNumbers = true;
+    canUseDot = true;
+    canUseOperator = true;
+    canUseAns = true;
+}
+
+function setAnswerFlags() {
+    canUseAns = false;
+    canUseNumbers = false;
+    canUseOperator = true;
+    canUseDot = false;
+}
+
+function setDefaultFlags() {
+    canUseDot = true;
+    canUseOperator = false;
+    canUseAns = false;
+    canUseNumbers = true;
+    canOverwrite = false;
+    canAnsOverwrite = false;
 }
