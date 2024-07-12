@@ -1,0 +1,40 @@
+* {
+    box-sizing: border-box;
+}
+.calculator {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.container {
+    width: 400px;
+    height: 500px;
+
+}
+.buttons {
+    display: flex;
+    flex-wrap: wrap;
+    height: calc(100% * 4 / 5);
+    
+}
+.buttons > * {
+    width: 25%;
+    font-size: 1.4rem;
+}
+.screen {
+    height: calc(100% * 1 / 5);
+    font-size: 1.6rem;
+    width: 100%;
+    background-color: black;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+}
+.screen > * {
+    flex: 1;
+}
+.buttons #delete {
+    width: 50%;
+}
