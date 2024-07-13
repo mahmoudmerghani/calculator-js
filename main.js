@@ -1,4 +1,5 @@
 let canOverwrite = false;
+let ans = "0";
 
 const buttons = document.querySelector(".buttons");
 const currentScreen = document.querySelector(".current");
@@ -21,7 +22,10 @@ equalBtn.addEventListener("click", e => {
     let exp = `${currentScreen.textContent} + `;
     exp = exp.replace("  ", " ");
     if (checkExp(exp)) {
-        resultScreen.textContent = calculate(currentScreen.textContent);
+        ans = resultScreen.textContent = calculate(currentScreen.textContent);
+        if (ans === "Silksong release date") {
+            ans = "0";
+        }
         canOverwrite = true;
     }
 });
@@ -92,7 +96,7 @@ function appendInput(input) {
 
 function calculate(exp) {
     let tokenizedExp = exp.split(" ");
-    tokenizedExp = tokenizedExp.map(token => token === "ans" ? (resultScreen.textContent || "0") : token);
+    tokenizedExp = tokenizedExp.map(token => token === "ans" ? ans : token);
     let result;
     for (let i = 0; i < tokenizedExp.length; i++) {
         if (tokenizedExp[i] === "×" || tokenizedExp[i] === "÷") {
@@ -101,6 +105,7 @@ function calculate(exp) {
             }
             else {
                 if (+tokenizedExp[i + 1] === 0) {
+                    ans = "0";
                     return "Silksong release date";
                 }
                 result = +tokenizedExp[i - 1] / +tokenizedExp[i + 1];
