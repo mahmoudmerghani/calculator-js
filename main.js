@@ -1,10 +1,4 @@
-let canUseDot = true;
-let canUseOperator = false;
-let canUseAns = false;
-let canUseNumbers = true;
 let canOverwrite = false;
-// overwrite the screen after equal and an operator and put (ans) in the screen
-let canAnsOverwrite = false;
 
 const numbers = document.querySelectorAll(".number");
 const currentScreen = document.querySelector(".current");
@@ -18,45 +12,74 @@ const clearBtn = document.querySelector("#clear");
 
 numbers.forEach(number => {
     number.addEventListener("click", e => {
-        if (canUseNumbers) {
-            appendInput(number.textContent);
-            setNumberFlags();
+        if (canOverwrite) {
+            currentScreen.textContent = number.textContent;
+            canOverwrite = false;
+            canAnsOverwrite = false;
+            return;
+        }
+        if (currentScreen.textContent === "0") {
+            currentScreen.textContent = number.textContent;
+            return;
+        }
+        let exp = currentScreen.textContent + number.textContent;
+        if (checkExp(exp)) {
+            currentScreen.textContent = exp;
         }
     });
 });
 
 operators.forEach(operator => {
     operator.addEventListener("click", e => {
-        if (canUseOperator) {
-            if (canAnsOverwrite) {
-                currentScreen.textContent = "ans";
-                canAnsOverwrite = false;
-                canOverwrite = false;
-            }
-            appendInput(` ${operator.textContent} `);
-            setOperatorFlags();
+        if (canOverwrite) {
+            currentScreen.textContent = `ans ${operator.textContent} `;
+            canOverwrite = false;
+            return;
+        }
+        let exp = `${currentScreen.textContent} ${operator.textContent} `;
+        // replace two spaces caused by two adjacent operators by one space
+        // to ensure that the split function works properly in checkExp()
+        exp = exp.replace("  ", " ");
+        if (checkExp(exp)) {
+            currentScreen.textContent = exp;
         }
     });
 });
 
 dotBtn.addEventListener("click", e => {
-    if (canUseDot) {
-        appendInput(dotBtn.textContent);
-        setDotFlags(); 
+    if (canOverwrite) {
+        return;
+    }
+    let exp = currentScreen.textContent + dotBtn.textContent;
+    if (checkExp(exp)) {
+        currentScreen.textContent = exp;
     }
 });
 
 equalBtn.addEventListener("click", e => {
-    if (canUseOperator) {
+    // equal works in places where operators can work
+    // the addition operator (+) is chosen as a substitute for equal in checkExp()
+    let exp = `${currentScreen.textContent} + `;
+    exp = exp.replace("  ", " ");
+    if (checkExp(exp)) {
         resultScreen.textContent = calculate(currentScreen.textContent);
-        setEqualFlags();
+        canOverwrite = true;
     }
 });
 
 answerBtn.addEventListener("click", e => {
-    if (canUseAns) {
-        appendInput(answerBtn.textContent);
-        setAnswerFlags();
+    if (canOverwrite) {
+        currentScreen.textContent = answerBtn.textContent;
+        canOverwrite = false;
+        return;
+    }
+    if (currentScreen.textContent === "0") {
+        currentScreen.textContent = answerBtn.textContent;
+        return;
+    }
+    let exp = currentScreen.textContent + answerBtn.textContent;
+    if (checkExp(exp)) {
+        currentScreen.textContent = exp;
     }
 });
 
@@ -70,34 +93,13 @@ deleteBtn.addEventListener("click", e => {
     }
     if (currentScreen.textContent.length === 0) {
         currentScreen.textContent = "0";
-        setDefaultFlags();
-        return;
-    }
-    const lastCharAfterDelete = currentScreen.textContent[currentScreen.textContent.length - 1];
-    if (lastCharAfterDelete === " ") { // operator
-        setOperatorFlags();
-    }
-    else if (lastCharAfterDelete === "s") { // ans
-        setAnswerFlags();
-    }
-    else if (lastCharAfterDelete === ".") {
-        setDotFlags();
-    }
-    else { // number
-        setNumberFlags();
-        canUseDot = true;
-        for (let i = currentScreen.textContent.length - 1; (currentScreen.textContent[i] !== " " && i >= 0); i--) {
-            if (currentScreen.textContent[i] === ".") {
-                canUseDot = false;
-            }
-        }
     }
 });
 
 clearBtn.addEventListener("click", e => {
     currentScreen.textContent = "0";
     resultScreen.textContent = "";
-    setDefaultFlags();
+    canOverwrite = false;
 });
 
 function appendInput(input) {
@@ -145,50 +147,18 @@ function calculate(exp) {
     return tokenizedExp[0];
 }
 
-function setNumberFlags() {
-    canUseOperator = true;
-    canUseAns = false;
-    canOverwrite = false;
-    canAnsOverwrite = false;
-}
-
-function setOperatorFlags() {
-    canUseOperator = false;
-    canUseDot = true;
-    canUseAns = true;
-    canUseNumbers = true;
-}
-
-function setDotFlags() {
-    canUseDot = false;
-    canUseAns = false;
-    canAnsOverwrite = false;
-    canOverwrite = false;
-    canUseNumbers = true;
-    canUseOperator = false;
-}
-
-function setEqualFlags() {
-    canAnsOverwrite = true;
-    canOverwrite = true;
-    canUseNumbers = true;
-    canUseDot = true;
-    canUseOperator = true;
-    canUseAns = true;
-}
-
-function setAnswerFlags() {
-    canUseAns = false;
-    canUseNumbers = false;
-    canUseOperator = true;
-    canUseDot = false;
-}
-
-function setDefaultFlags() {
-    canUseDot = true;
-    canUseOperator = false;
-    canUseAns = false;
-    canUseNumbers = true;
-    canOverwrite = false;
-    canAnsOverwrite = false;
+function checkExp(exp) {
+    const tokenizedExp = exp.split(" ");
+    const operators = ["×", "÷", "+", "-"]
+    for (let i = 0; i < tokenizedExp.length; i++) {
+        if (operators.includes(tokenizedExp[i]) && operators.includes(tokenizedExp[i + 1])) {
+            return false;
+        }  
+    }
+    for (let i = 0; i < tokenizedExp.length; i = i + 2) {
+        if (tokenizedExp[i] !== "ans" && isNaN(+tokenizedExp[i])) {
+            return false;
+        }
+    }
+    return true;
 }
