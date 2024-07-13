@@ -1,59 +1,18 @@
 let canOverwrite = false;
 
-const numbers = document.querySelectorAll(".number");
+const buttons = document.querySelector(".buttons");
 const currentScreen = document.querySelector(".current");
 const resultScreen = document.querySelector(".result");
-const operators = document.querySelectorAll(".operator");
 const equalBtn = document.querySelector("#equal");
-const dotBtn = document.querySelector("#dot");
-const answerBtn = document.querySelector("#answer");
 const deleteBtn = document.querySelector("#delete");
 const clearBtn = document.querySelector("#clear");
 
-numbers.forEach(number => {
-    number.addEventListener("click", e => {
-        if (canOverwrite) {
-            currentScreen.textContent = number.textContent;
-            canOverwrite = false;
-            canAnsOverwrite = false;
+buttons.addEventListener("click", e => {
+    if (e.target.id === "equal" || e.target.id === "delete" ||
+        e.target.id === "clear" || e.target.className === "buttons") {
             return;
         }
-        if (currentScreen.textContent === "0") {
-            currentScreen.textContent = number.textContent;
-            return;
-        }
-        let exp = currentScreen.textContent + number.textContent;
-        if (checkExp(exp)) {
-            currentScreen.textContent = exp;
-        }
-    });
-});
-
-operators.forEach(operator => {
-    operator.addEventListener("click", e => {
-        if (canOverwrite) {
-            currentScreen.textContent = `ans ${operator.textContent} `;
-            canOverwrite = false;
-            return;
-        }
-        let exp = `${currentScreen.textContent} ${operator.textContent} `;
-        // replace two spaces caused by two adjacent operators by one space
-        // to ensure that the split function works properly in checkExp()
-        exp = exp.replace("  ", " ");
-        if (checkExp(exp)) {
-            currentScreen.textContent = exp;
-        }
-    });
-});
-
-dotBtn.addEventListener("click", e => {
-    if (canOverwrite) {
-        return;
-    }
-    let exp = currentScreen.textContent + dotBtn.textContent;
-    if (checkExp(exp)) {
-        currentScreen.textContent = exp;
-    }
+    appendInput(e.target.textContent);
 });
 
 equalBtn.addEventListener("click", e => {
@@ -67,23 +26,8 @@ equalBtn.addEventListener("click", e => {
     }
 });
 
-answerBtn.addEventListener("click", e => {
-    if (canOverwrite) {
-        currentScreen.textContent = answerBtn.textContent;
-        canOverwrite = false;
-        return;
-    }
-    if (currentScreen.textContent === "0") {
-        currentScreen.textContent = answerBtn.textContent;
-        return;
-    }
-    let exp = currentScreen.textContent + answerBtn.textContent;
-    if (checkExp(exp)) {
-        currentScreen.textContent = exp;
-    }
-});
-
 deleteBtn.addEventListener("click", e => {
+    canOverwrite = false;
     const lastChar = currentScreen.textContent[currentScreen.textContent.length - 1];
     if (lastChar === " " || lastChar === "s") { // operator or ans
         currentScreen.textContent = currentScreen.textContent.slice(0, -3);
@@ -103,16 +47,46 @@ clearBtn.addEventListener("click", e => {
 });
 
 function appendInput(input) {
-    if (currentScreen.textContent.length < 30) {
-        if ((currentScreen.textContent === "0"  && input !== ".") || canOverwrite) {
-            currentScreen.textContent = input;
+    if (currentScreen.textContent.length > 25 && !canOverwrite) {
+        return;
+    }
+    if (input === "×" || input === "÷" || input === "+" || input === "-") {
+        if (canOverwrite) {
+            currentScreen.textContent = `ans ${input} `;
+            canOverwrite = false;
+            return;
         }
-        else {
-            currentScreen.textContent += input;
+        let exp = `${currentScreen.textContent} ${input} `;
+        // replace two spaces caused by two adjacent operators by one space
+        // to ensure that the split function works properly in checkExp()
+        exp = exp.replace("  ", " ");
+        if (checkExp(exp)) {
+            currentScreen.textContent = exp;
         }
     }
-    else {
-        resultScreen.textContent = "Reached maximum number of inputs";
+    else if (input === ".") {
+        if (canOverwrite) {
+            return;
+        }
+        let exp = currentScreen.textContent + input;
+        if (checkExp(exp)) {
+            currentScreen.textContent = exp;
+        }
+    }
+    else { // number or ans
+        if (canOverwrite) {
+            currentScreen.textContent = input;
+            canOverwrite = false;
+            return;
+        }
+        if (currentScreen.textContent === "0") {
+            currentScreen.textContent = input;
+            return;
+        }
+        let exp = currentScreen.textContent + input;
+        if (checkExp(exp)) {
+            currentScreen.textContent = exp;
+        }
     }
 }
 
