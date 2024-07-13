@@ -1,3 +1,4 @@
+const MAXIMUM_SCREEN_LENGTH = 25;
 let canOverwrite = false;
 let ans = "0";
 
@@ -51,7 +52,7 @@ clearBtn.addEventListener("click", e => {
 });
 
 function appendInput(input) {
-    if (currentScreen.textContent.length > 205 && !canOverwrite) {
+    if (currentScreen.textContent.length > MAXIMUM_SCREEN_LENGTH && !canOverwrite) {
         return;
     }
     if (input === "×" || input === "÷" || input === "+" || input === "-") {
