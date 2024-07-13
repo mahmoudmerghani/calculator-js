@@ -19,7 +19,6 @@ equalBtn.addEventListener("click", e => {
     // equal works in places where operators can work
     // the addition operator (+) is chosen as a substitute for equal in checkExp()
     let exp = `${currentScreen.textContent} + `;
-    exp = exp.replace("  ", " ");
     if (checkExp(exp)) {
         resultScreen.textContent = calculate(currentScreen.textContent);
         canOverwrite = true;
@@ -100,6 +99,9 @@ function calculate(exp) {
                 result = +tokenizedExp[i - 1] * +tokenizedExp[i + 1];
             }
             else {
+                if (+tokenizedExp[i + 1] === 0) {
+                    return "Silksong release date";
+                }
                 result = +tokenizedExp[i - 1] / +tokenizedExp[i + 1];
             }
             tokenizedExp.splice(i - 1, 3, result.toString());
@@ -136,3 +138,29 @@ function checkExp(exp) {
     }
     return true;
 }
+
+document.addEventListener("keydown", e => {
+    const key = e.key;
+
+    if ((key >= '0' && key <= '9') || key === "+" || key === "-" || key === ".") {
+        appendInput(key);
+    }
+    else if (key === '*') {
+        appendInput('×');
+    } 
+    else if (key === '/') {
+        appendInput('÷');
+    } 
+    else if (key === 'a' || key === "A") {
+        appendInput('ans');
+    }
+    else if (key === 'Enter' || key === '=') {
+        equalBtn.click();
+    }
+    else if (key === 'Backspace') {
+        deleteBtn.click();
+    } 
+    else if (key === 'Escape') {
+        clearBtn.click();
+    } 
+});
