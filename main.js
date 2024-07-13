@@ -19,6 +19,7 @@ equalBtn.addEventListener("click", e => {
     // equal works in places where operators can work
     // the addition operator (+) is chosen as a substitute for equal in checkExp()
     let exp = `${currentScreen.textContent} + `;
+    exp = exp.replace("  ", " ");
     if (checkExp(exp)) {
         resultScreen.textContent = calculate(currentScreen.textContent);
         canOverwrite = true;
@@ -46,7 +47,7 @@ clearBtn.addEventListener("click", e => {
 });
 
 function appendInput(input) {
-    if (currentScreen.textContent.length > 25 && !canOverwrite) {
+    if (currentScreen.textContent.length > 205 && !canOverwrite) {
         return;
     }
     if (input === "×" || input === "÷" || input === "+" || input === "-") {
