@@ -162,6 +162,7 @@ document.addEventListener("keydown", e => {
         appendInput('ans');
     }
     else if (key === 'Enter' || key === '=') {
+        e.preventDefault();
         equalBtn.click();
     }
     else if (key === 'Backspace') {
