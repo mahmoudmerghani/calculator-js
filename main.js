@@ -165,10 +165,10 @@ document.addEventListener("keydown", e => {
         e.preventDefault();
         equalBtn.click();
     }
+    else if (key === 'Escape' || (key === "Backspace" && e.ctrlKey)) {
+        clearBtn.click();
+    } 
     else if (key === 'Backspace') {
         deleteBtn.click();
-    } 
-    else if (key === 'Escape') {
-        clearBtn.click();
     } 
 });
