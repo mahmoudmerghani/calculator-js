@@ -8,10 +8,12 @@ const resultScreen = document.querySelector(".result");
 const equalBtn = document.querySelector("#equal");
 const deleteBtn = document.querySelector("#delete");
 const clearBtn = document.querySelector("#clear");
+const signToggleBtn = document.querySelector("#plus-minus");
 
 buttons.addEventListener("click", e => {
     if (e.target.id === "equal" || e.target.id === "delete" ||
-        e.target.id === "clear" || e.target.className === "buttons") {
+        e.target.id === "clear" || e.target.id === "plus-minus" ||
+        e.target.className === "buttons") { // ignore special operations buttons
             return;
         }
     appendInput(e.target.textContent);
@@ -49,6 +51,22 @@ clearBtn.addEventListener("click", e => {
     currentScreen.textContent = "0";
     resultScreen.textContent = "";
     canOverwrite = false;
+});
+
+signToggleBtn.addEventListener("click", e => {
+    const lastCharIndex = currentScreen.textContent.length - 1;
+    if (currentScreen.textContent[lastCharIndex] === "s" ||
+        currentScreen.textContent[lastCharIndex] === " ") { // ans or operator
+        return;
+    }
+    let i = lastCharIndex;
+    while (i >= 0 && currentScreen.textContent[i] !== " ") {
+        i--;
+    }
+    i++;
+    const signToggledNumber = (+currentScreen.textContent.slice(i)) * -1;
+    currentScreen.textContent = currentScreen.textContent.slice(0, i) +
+                                signToggledNumber;
 });
 
 function appendInput(input) {
@@ -149,7 +167,10 @@ function checkExp(exp) {
 document.addEventListener("keydown", e => {
     const key = e.key;
 
-    if ((key >= '0' && key <= '9') || key === "+" || key === "-" || key === ".") {
+    if (e.shiftKey && (key === "+" || key === "-")) {
+        signToggleBtn.click();
+    }
+    else if ((key >= '0' && key <= '9') || key === "+" || key === "-" || key === ".") {
         appendInput(key);
     }
     else if (key === '*') {

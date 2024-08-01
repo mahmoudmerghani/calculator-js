@@ -57,7 +57,3 @@ body {
 .buttons #equal:active {
     background-color: #4cc3ffce;
 }
-.buttons #delete {
-    width: 50%;
-}
-
