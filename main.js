@@ -59,6 +59,7 @@ signToggleBtn.addEventListener("click", e => {
         currentScreen.textContent[lastCharIndex] === " ") { // ans or operator
         return;
     }
+    canOverwrite = false;
     let i = lastCharIndex;
     while (i >= 0 && currentScreen.textContent[i] !== " ") {
         i--;
